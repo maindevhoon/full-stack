@@ -1,0 +1,25 @@
+{% extends "canteen/base.html" %}
+{% block title %}Pickup windows · Campus Canteen{% endblock %}
+{% block content %}
+<div class="section-heading page-heading">
+  <div><h1>Pickup windows</h1><p>Each reservation takes one place in a window.</p></div>
+  <a class="btn btn-main" href="{% url 'staff_slot_add' %}">Add pickup window</a>
+</div>
+<div class="surface table-responsive">
+  <table class="table manage-table">
+    <thead><tr><th scope="col">Pickup window</th><th scope="col">Reserved</th><th scope="col">Order limit</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead>
+    <tbody>
+    {% for slot in slots %}
+      <tr>
+        <th scope="row">{{ slot.start_at|date:"D, j M · g:i A" }} to {{ slot.end_at|time:"g:i A" }}</th>
+        <td>{{ slot.reserved_count }}</td><td>{{ slot.capacity }}</td>
+        <td>{% if slot.is_open %}<span class="status status-ready">{{ slot.remaining }} left</span>{% elif slot.remaining == 0 %}<span class="status status-sold-out">Full</span>{% else %}<span class="status status-sold-out">Closed</span>{% endif %}</td>
+        <td><a class="btn btn-subtle btn-sm" href="{% url 'staff_slot_edit' slot.pk %}">Edit</a></td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="5">No pickup windows exist yet.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

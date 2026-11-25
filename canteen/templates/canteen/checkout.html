@@ -1,0 +1,46 @@
+{% extends "canteen/base.html" %}
+{% block title %}Checkout · Campus Canteen{% endblock %}
+{% block content %}
+<div class="section-heading page-heading">
+  <div><h1>Choose your pickup window</h1><p>We reserve one spot for each order.</p></div>
+  <a class="btn btn-subtle" href="{% url 'cart' %}">Back to cart</a>
+</div>
+<div class="checkout-layout">
+  <section class="surface">
+    <h2>Pickup</h2>
+    {% if slots %}
+      <div class="slot-list">
+        {% for slot in slots %}
+        <div class="slot-row">
+          <strong>{{ slot.start_at|date:"D, j M" }}</strong><span>{{ slot.start_at|time:"g:i A" }} to {{ slot.end_at|time:"g:i A" }}</span>
+          {% if slot.is_open %}<span class="status status-ready">{{ slot.remaining }} left</span>{% else %}<span class="status status-sold-out">Full</span>{% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% if has_bookable %}
+      <form method="post" class="checkout-form">
+        {% csrf_token %}
+        {% include "canteen/partials/fields.html" %}
+        <button class="btn btn-main" type="submit">Confirm order</button>
+      </form>
+    {% else %}
+      {% if form.errors %}
+        <div class="message message-error" role="alert">
+          {% for error in form.non_field_errors %}<div>{{ error }}</div>{% endfor %}
+          {% for error in form.slot.errors %}<div>{{ error }}</div>{% endfor %}
+        </div>
+      {% endif %}
+      <p>No pickup windows have space right now. Your cart is still saved.</p>
+    {% endif %}
+  </section>
+  <aside class="surface summary">
+    <h2>Order summary</h2>
+    <ul class="plain-list">
+      {% for line in lines %}<li><span>{{ line.quantity }} × {{ line.name }}</span><strong>₹{{ line.subtotal|floatformat:2 }}</strong></li>{% endfor %}
+    </ul>
+    <div class="summary-total"><span>Total</span><strong>₹{{ total|floatformat:2 }}</strong></div>
+    <p>Payment is due at pickup.</p>
+  </aside>
+</div>
+{% endblock %}

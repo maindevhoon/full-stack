@@ -1,0 +1,5 @@
+{% extends "canteen/base.html" %}
+{% block title %}Page not found · Campus Canteen{% endblock %}
+{% block content %}
+<div class="empty-state"><h1>Page not found</h1><p>This page or order is unavailable.</p><a class="btn btn-main" href="{% url 'menu' %}">Back to dashboard</a></div>
+{% endblock %}

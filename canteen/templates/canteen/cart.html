@@ -1,0 +1,55 @@
+{% extends "canteen/base.html" %}
+{% block title %}Your cart · Campus Canteen{% endblock %}
+{% block content %}
+<div class="section-heading page-heading">
+  <div><h1>Your cart</h1><p>Review your items before choosing a pickup window.</p></div>
+  <a class="btn btn-subtle" href="{% url 'menu' %}">Continue browsing</a>
+</div>
+{% if lines %}
+<div class="checkout-layout">
+  <div class="surface">
+    <h2>Order items</h2>
+    {% for line in lines %}
+    <article class="cart-row">
+      <div>
+        <h3>{{ line.name }}</h3>
+        {% if line.available %}
+          <p>₹{{ line.price|floatformat:2 }} each</p>
+        {% else %}
+          <span class="status status-sold-out">Unavailable</span>
+        {% endif %}
+      </div>
+      <div class="line-controls">
+        {% if line.available %}
+        <form method="post" action="{% url 'update_cart' line.id %}" class="row-form">
+          {% csrf_token %}
+          <label for="cart-{{ line.id }}" class="visually-hidden">Quantity for {{ line.name }}</label>
+          <input class="form-control qty" id="cart-{{ line.id }}" name="quantity" type="number" min="1" max="{{ max_quantity }}" value="{{ line.quantity }}" required>
+          <button class="btn btn-subtle btn-sm" type="submit">Update</button>
+        </form>
+        {% endif %}
+        <form method="post" action="{% url 'update_cart' line.id %}">
+          {% csrf_token %}
+          <input type="hidden" name="quantity" value="0">
+          <button class="text-button" type="submit" aria-label="Remove {{ line.name }}">Remove</button>
+        </form>
+      </div>
+      <strong class="line-total">{% if line.available %}₹{{ line.subtotal|floatformat:2 }}{% endif %}</strong>
+    </article>
+    {% endfor %}
+  </div>
+  <aside class="surface summary">
+    <h2>Summary</h2>
+    <div class="summary-total"><span>Total</span><strong>₹{{ total|floatformat:2 }}</strong></div>
+    <p>Payment is due at pickup.</p>
+    {% if has_unavailable %}
+      <p class="field-error">Remove unavailable items to continue.</p>
+    {% else %}
+      <a class="btn btn-main w-100" href="{% url 'checkout' %}">Choose pickup window</a>
+    {% endif %}
+  </aside>
+</div>
+{% else %}
+  <div class="empty-state"><h2>Your cart is empty</h2><p>Add something from the menu to get started.</p><a class="btn btn-main" href="{% url 'menu' %}">Browse menu</a></div>
+{% endif %}
+{% endblock %}

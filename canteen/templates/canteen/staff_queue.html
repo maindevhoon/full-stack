@@ -1,0 +1,44 @@
+{% extends "canteen/base.html" %}
+{% block title %}Order queue · Campus Canteen{% endblock %}
+{% block content %}
+<div class="section-heading page-heading">
+  <div><h1>Order queue</h1><p>Set order status as each pickup moves through the kitchen.</p></div>
+  <span class="queue-count"><strong>{{ active_count }}</strong> active</span>
+</div>
+<nav class="menu-filters" aria-label="Filter orders by status">
+  <a href="{% url 'staff_queue' %}" {% if not status %}aria-current="page"{% endif %}>Active</a>
+  {% for filter in filters %}<a href="?status={{ filter.value }}" {% if status == filter.value %}aria-current="page"{% endif %}>{{ filter.label }} <span>{{ filter.count }}</span></a>{% endfor %}
+</nav>
+{% if entries %}
+<div class="staff-grid">
+  {% for entry in entries %}{% with order=entry.order %}
+  <article class="surface ticket">
+    <div class="ticket-heading"><h2>Order #{{ order.pk }}</h2>{% include "canteen/partials/status.html" %}</div>
+    <p class="ticket-owner">{{ order.user.get_full_name|default:order.user.username }}</p>
+    <p class="ticket-slot">{{ order.slot.start_at|date:"D, j M · g:i A" }} to {{ order.slot.end_at|time:"g:i A" }}</p>
+    <ul class="plain-list">
+      {% for line in order.items.all %}<li><span>{{ line.quantity }} × {{ line.item_name }}</span><span>₹{{ line.line_total|floatformat:2 }}</span></li>{% endfor %}
+    </ul>
+    <div class="summary-total"><span>Total</span><strong>₹{{ order.total|floatformat:2 }}</strong></div>
+    {% if entry.next %}
+    <form method="post" action="{% url 'staff_transition' order.pk %}" class="ticket-action">
+      {% csrf_token %}
+      <input type="hidden" name="status" value="{{ entry.next }}">
+      {% if entry.next == "collected" %}
+        <label for="token-{{ order.pk }}" class="form-label">Student's pickup token</label>
+        <input class="form-control token-input" id="token-{{ order.pk }}" name="token" type="text" placeholder="CP-…" maxlength="30" autocomplete="off" required>
+        <button type="submit" class="btn btn-main btn-sm">Verify and collect</button>
+      {% elif entry.next == "ready" %}
+        <button type="submit" class="btn btn-main btn-sm">Mark ready</button>
+      {% else %}
+        <button type="submit" class="btn btn-main btn-sm">Start preparing</button>
+      {% endif %}
+    </form>
+    {% endif %}
+  </article>
+  {% endwith %}{% endfor %}
+</div>
+{% else %}
+<div class="empty-state"><h2>No matching orders</h2><p>Orders will appear here when students confirm a pickup.</p></div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "canteen/base.html" %}
+{% block title %}Create account · Campus Canteen{% endblock %}
+{% block content %}
+<div class="auth-shell">
+  <section class="auth-intro">
+    <h1>Preorder from<br>your canteen</h1>
+    <p>Create a student account to reserve a pickup window and follow your order.</p>
+  </section>
+  <section class="form-panel" aria-labelledby="register-title">
+    <h2 id="register-title">Create a student account</h2>
+    <form method="post">
+      {% csrf_token %}
+      {% include "canteen/partials/fields.html" %}
+      <button type="submit" class="btn btn-main w-100">Create account</button>
+    </form>
+    <p class="form-tail">Already registered? <a href="{% url 'login' %}">Sign in</a></p>
+  </section>
+</div>
+{% endblock %}

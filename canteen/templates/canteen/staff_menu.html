@@ -1,0 +1,27 @@
+{% extends "canteen/base.html" %}
+{% block title %}Manage menu · Campus Canteen{% endblock %}
+{% block content %}
+<div class="section-heading page-heading">
+  <div><h1>Manage menu</h1><p>Set prices and availability for the student menu.</p></div>
+  <a class="btn btn-main" href="{% url 'staff_menu_add' %}">Add menu item</a>
+</div>
+<div class="surface table-responsive">
+  <table class="table manage-table">
+    <thead><tr><th scope="col">Item</th><th scope="col">Category</th><th scope="col">Price</th><th scope="col">Availability</th><th scope="col">Actions</th></tr></thead>
+    <tbody>
+    {% for item in items %}
+      <tr>
+        <th scope="row">{{ item.name }}</th><td>{{ item.get_category_display }}</td><td>₹{{ item.price|floatformat:2 }}</td>
+        <td>{% if item.available %}<span class="status status-ready">Available</span>{% else %}<span class="status status-sold-out">Sold out</span>{% endif %}</td>
+        <td><div class="table-actions">
+          <a class="btn btn-subtle btn-sm" href="{% url 'staff_menu_edit' item.pk %}">Edit</a>
+          <form method="post" action="{% url 'staff_toggle_availability' item.pk %}">{% csrf_token %}<button class="btn btn-subtle btn-sm" type="submit">{% if item.available %}Mark sold out{% else %}Mark available{% endif %}</button></form>
+        </div></td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="5">The menu is empty. Add its first item to get started.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

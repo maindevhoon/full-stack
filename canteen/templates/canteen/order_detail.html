@@ -1,0 +1,33 @@
+{% extends "canteen/base.html" %}
+{% block title %}Order #{{ order.pk }} · Campus Canteen{% endblock %}
+{% block content %}
+<div class="section-heading page-heading">
+  <div><h1>Order #{{ order.pk }}</h1><p>Pickup {{ order.slot.start_at|date:"l, j F · g:i A" }} to {{ order.slot.end_at|time:"g:i A" }}</p></div>
+  <a class="btn btn-subtle" href="{% url 'order_history' %}">All orders</a>
+</div>
+<section class="order-token" aria-labelledby="token-heading">
+  <div><h2 id="token-heading">Pickup token</h2><strong class="token-value">{{ order.token }}</strong></div>
+  <div class="token-side">{% include "canteen/partials/status.html" %}
+    {% if order.status == "collected" %}<p>Collected {{ order.collected_at|date:"j M · g:i A" }}</p>{% else %}<p>Show this token at the counter when your order is ready.</p>{% endif %}
+  </div>
+</section>
+<div class="checkout-layout order-details">
+  <section class="surface">
+    <h2>Order progress</h2>
+    <ol class="progress-steps">
+      {% for step in progress %}
+      <li class="step{% if step.current %} step-current{% elif step.done %} step-done{% endif %}" {% if step.current %}aria-current="step"{% endif %}><span>{{ forloop.counter }}</span>{{ step.label }}</li>
+      {% endfor %}
+    </ol>
+    <a class="btn btn-subtle btn-sm" href="{% url 'order_detail' order.pk %}">Refresh status</a>
+  </section>
+  <section class="surface summary">
+    <h2>Order items</h2>
+    <ul class="plain-list">
+      {% for item in order.items.all %}<li><span>{{ item.quantity }} × {{ item.item_name }}</span><strong>₹{{ item.line_total|floatformat:2 }}</strong></li>{% endfor %}
+    </ul>
+    <div class="summary-total"><span>Total</span><strong>₹{{ order.total|floatformat:2 }}</strong></div>
+    <p>Payment at pickup.</p>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "canteen/base.html" %}
+{% block title %}Daily report · Campus Canteen{% endblock %}
+{% block content %}
+<div class="section-heading page-heading">
+  <div><h1>Daily report</h1><p>Orders grouped by pickup date. Sales count collected orders only.</p></div>
+  <form method="get" class="date-form">
+    <label class="form-label" for="report-date">Pickup date</label>
+    <div class="row-form"><input type="date" class="form-control" id="report-date" name="date" value="{{ day|date:'Y-m-d' }}" required><button class="btn btn-main btn-sm" type="submit">View</button></div>
+  </form>
+</div>
+<div class="report-metrics">
+  <section class="surface report-metric"><h2>Orders scheduled</h2><strong>{{ scheduled }}</strong></section>
+  <section class="surface report-metric"><h2>Orders collected</h2><strong>{{ collected }}</strong></section>
+  <section class="surface report-metric"><h2>Completed sales</h2><strong>₹{{ sales|floatformat:2 }}</strong></section>
+</div>
+<div class="checkout-layout report-layout">
+  <section class="surface">
+    <h2>Popular items</h2>
+    {% if popular %}
+    <ul class="plain-list">
+      {% for name, quantity in popular %}<li><span>{{ name }}</span><strong>{{ quantity }} sold</strong></li>{% endfor %}
+    </ul>
+    {% else %}
+    <p>No collected items for this pickup day.</p>
+    {% endif %}
+  </section>
+  <section class="surface">
+    <h2>Order status</h2>
+    <ul class="plain-list">{% for metric in metrics %}<li><span>{{ metric.label }}</span><strong>{{ metric.count }}</strong></li>{% endfor %}</ul>
+  </section>
+</div>
+{% endblock %}

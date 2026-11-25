@@ -1,0 +1,15 @@
+{% extends "canteen/base.html" %}
+{% block title %}{{ title }} · Campus Canteen{% endblock %}
+{% block content %}
+<div class="section-heading page-heading">
+  <div><h1>{{ title }}</h1>{% if hint %}<p>{{ hint }}</p>{% endif %}</div>
+  <a class="btn btn-subtle" href="{% url back %}">Cancel</a>
+</div>
+<div class="form-panel staff-form-panel">
+  <form method="post">
+    {% csrf_token %}
+    {% include "canteen/partials/fields.html" %}
+    <button class="btn btn-main" type="submit">Save changes</button>
+  </form>
+</div>
+{% endblock %}

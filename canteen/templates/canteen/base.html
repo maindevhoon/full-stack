@@ -1,0 +1,48 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Campus Canteen{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'canteen/vendor/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'canteen/style.css' %}">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="layout-width header-inner">
+    <a class="brand" href="{% url 'menu' %}"><span class="brand-mark" aria-hidden="true">C</span><span>Campus Canteen</span></a>
+    <nav class="main-nav" aria-label="Main navigation">
+      {% if user.is_authenticated %}
+        {% if user.is_staff %}
+          <a href="{% url 'staff_queue' %}" {% if request.resolver_match.url_name == 'staff_queue' %}aria-current="page"{% endif %}>Queue</a>
+          <a href="{% url 'staff_menu' %}" {% if request.resolver_match.url_name == 'staff_menu' %}aria-current="page"{% endif %}>Menu</a>
+          <a href="{% url 'staff_slots' %}" {% if request.resolver_match.url_name == 'staff_slots' %}aria-current="page"{% endif %}>Slots</a>
+          <a href="{% url 'staff_reports' %}" {% if request.resolver_match.url_name == 'staff_reports' %}aria-current="page"{% endif %}>Reports</a>
+        {% else %}
+          <a href="{% url 'menu' %}" {% if request.resolver_match.url_name == 'menu' %}aria-current="page"{% endif %}>Menu</a>
+          <a href="{% url 'cart' %}" {% if request.resolver_match.url_name == 'cart' or request.resolver_match.url_name == 'checkout' %}aria-current="page"{% endif %}>Cart</a>
+          <a href="{% url 'order_history' %}" {% if request.resolver_match.url_name == 'order_history' or request.resolver_match.url_name == 'order_detail' %}aria-current="page"{% endif %}>My orders</a>
+        {% endif %}
+        <form method="post" action="{% url 'logout' %}" class="sign-out">{% csrf_token %}<button type="submit" class="btn btn-subtle btn-sm">Sign out</button></form>
+      {% else %}
+        <a href="{% url 'login' %}" {% if request.resolver_match.url_name == 'login' %}aria-current="page"{% endif %}>Sign in</a>
+        <a href="{% url 'register' %}" {% if request.resolver_match.url_name == 'register' %}aria-current="page"{% endif %}>Create account</a>
+      {% endif %}
+    </nav>
+  </div>
+</header>
+<main id="main" class="layout-width main-content">
+  {% if messages %}
+  <div class="messages" aria-live="polite">
+    {% for message in messages %}
+    <div class="message{% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %} message-error{% endif %}" role="{% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}alert{% else %}status{% endif %}">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% block content %}{% endblock %}
+</main>
+<footer class="site-footer"><div class="layout-width">Campus Canteen</div></footer>
+</body>
+</html>

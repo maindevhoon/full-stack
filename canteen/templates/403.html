@@ -1,0 +1,5 @@
+{% extends "canteen/base.html" %}
+{% block title %}Access denied · Campus Canteen{% endblock %}
+{% block content %}
+<div class="empty-state"><h1>Access denied</h1><p>Your account cannot open this page.</p><a class="btn btn-main" href="{% url 'menu' %}">Back to dashboard</a></div>
+{% endblock %}

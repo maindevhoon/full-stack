@@ -1,0 +1,50 @@
+{% extends "canteen/base.html" %}
+{% load static %}
+{% block title %}Menu · Campus Canteen{% endblock %}
+{% block content %}
+<section class="menu-hero" aria-labelledby="menu-title">
+  <div class="hero-copy">
+    <h1 id="menu-title">Preorder your<br>canteen lunch</h1>
+    <p>Pick your favourites and choose a time to collect. Pay at the counter when you arrive.</p>
+    {% if next_slot %}
+      <p class="hero-pickup">Next pickup <strong>{{ next_slot.start_at|date:"D, j M · g:i A" }}</strong></p>
+    {% else %}
+      <p class="hero-pickup">Pickup windows are currently full or unavailable.</p>
+    {% endif %}
+  </div>
+  <img class="hero-image" src="{% static 'canteen/canteen-hero.webp' %}" alt="A masala sandwich, paneer roll, and samosa on a campus canteen table" fetchpriority="high">
+</section>
+<section class="menu-section" aria-labelledby="items-title">
+  <div class="section-heading">
+    <h2 id="items-title">Today's menu</h2>
+    <a class="btn btn-subtle" href="{% url 'cart' %}">View cart{% if cart_items %} <span class="cart-count">{{ cart_items }}</span>{% endif %}</a>
+  </div>
+  <nav class="menu-filters" aria-label="Filter menu by category">
+    <a href="{% url 'menu' %}" {% if not category %}aria-current="page"{% endif %}>All items</a>
+    {% for value, label in categories %}
+      <a href="?category={{ value }}" {% if category == value %}aria-current="page"{% endif %}>{{ label }}</a>
+    {% endfor %}
+  </nav>
+  <div class="item-grid">
+    {% for item in items %}
+    <article class="menu-item{% if not item.available %} sold-out{% endif %}">
+      <div class="item-meta"><span>{{ item.get_category_display }}</span><span class="item-price">₹{{ item.price|floatformat:2 }}</span></div>
+      <h3>{{ item.name }}</h3>
+      <p>{{ item.description }}</p>
+      {% if item.available %}
+      <form method="post" action="{% url 'add_to_cart' item.pk %}" class="item-controls">
+        {% csrf_token %}
+        <label class="visually-hidden" for="qty-{{ item.pk }}">Quantity for {{ item.name }}</label>
+        <input class="form-control qty" type="number" name="quantity" id="qty-{{ item.pk }}" min="1" max="{{ max_quantity }}" value="1" required>
+        <button class="btn btn-main btn-sm" type="submit" aria-label="Add {{ item.name }} to cart">Add to cart</button>
+      </form>
+      {% else %}
+        <span class="status status-sold-out">Sold out</span>
+      {% endif %}
+    </article>
+    {% empty %}
+      <p class="empty-state">No items are listed in this category.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

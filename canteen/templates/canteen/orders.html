@@ -1,0 +1,22 @@
+{% extends "canteen/base.html" %}
+{% block title %}My orders · Campus Canteen{% endblock %}
+{% block content %}
+<div class="section-heading page-heading">
+  <div><h1>My orders</h1><p>Find your pickup times, tokens, and order status.</p></div>
+  <a class="btn btn-subtle" href="{% url 'menu' %}">Browse menu</a>
+</div>
+{% if orders %}
+<div class="order-list">
+  {% for order in orders %}
+  <article class="order-row surface">
+    <div><h2><a href="{% url 'order_detail' order.pk %}">Order #{{ order.pk }}</a></h2><p>{{ order.slot.start_at|date:"D, j M · g:i A" }} to {{ order.slot.end_at|time:"g:i A" }}</p></div>
+    {% include "canteen/partials/status.html" %}
+    <strong>₹{{ order.total|floatformat:2 }}</strong>
+    <a class="btn btn-subtle btn-sm" href="{% url 'order_detail' order.pk %}">View order</a>
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+  <div class="empty-state"><h2>You have no orders yet</h2><p>Your pickup details will appear here after you order.</p><a class="btn btn-main" href="{% url 'menu' %}">Browse menu</a></div>
+{% endif %}
+{% endblock %}
